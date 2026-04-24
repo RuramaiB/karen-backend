@@ -53,4 +53,9 @@ public class AuthenticationController {
     return service.getUserByEmail(email);
   }
 
+  @PutMapping("/update-is-first-time-by-/{email}")
+  public ResponseEntity<String> updateIsFirstTime(@PathVariable String email){
+    return service.updateIsFirstTime(email);
+  }
+
 }

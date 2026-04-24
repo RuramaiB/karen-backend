@@ -315,4 +315,12 @@ public class AuthenticationService {
                 return repository.findByEmail(email)
                                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         }
+
+        public ResponseEntity<String> updateIsFirstTime(String email) {
+                User user = repository.findByEmail(email)
+                                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                user.setIsFirstTime(false);
+                repository.save(user);
+                return ResponseEntity.ok("Status updated successfully.");
+        }
 }
