@@ -13,13 +13,28 @@ import java.util.List;
 public class VerificationController {
 
     private final ProctoringIncidentRepository incidentRepository;
+    private final zw.co.hushsoft.properbackend.notifications.NotificationsServices notificationsServices;
 
     @PostMapping("/log-incident")
     public ProctoringIncident logIncident(@RequestBody ProctoringIncident incident) {
         if (incident.getTimestamp() == null) {
             incident.setTimestamp(LocalDateTime.now());
         }
-        return incidentRepository.save(incident);
+        
+        ProctoringIncident savedIncident = incidentRepository.save(incident);
+        
+        // Create a notification for the lecturer
+        try {
+            zw.co.hushsoft.properbackend.notifications.NotificationsRequest request = new zw.co.hushsoft.properbackend.notifications.NotificationsRequest();
+            request.setTitle("Suspicious Activity Detected");
+            request.setMessage("Student " + incident.getStudentEmail() + " performed: " + incident.getIncidentType() + " (" + incident.getDetail() + ")");
+            request.setStudentEmail(incident.getStudentEmail());
+            notificationsServices.createNotification(request);
+        } catch (Exception e) {
+            System.err.println("Failed to create notification for incident: " + e.getMessage());
+        }
+        
+        return savedIncident;
     }
 
     @GetMapping("/incidents/{examId}")
